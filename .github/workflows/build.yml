@@ -1,0 +1,42 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # СЮДА НУЖНО ВСТАВИТЬ ССЫЛКУ!
+      - name: Download Project Archive
+        uses: carlosperate/download-file-action@v2
+        with:
+          file-url: 'https://disk.yandex.ru/d/8YOG9XVt8Eatig'
+          file-name: 'project.zip'
+          location: './'
+
+      - name: Unzip Project
+        run: unzip project.zip
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.apk
+          path: app/build/outputs/apk/debug/*.apk
